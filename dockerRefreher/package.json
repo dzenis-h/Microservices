@@ -1,0 +1,12 @@
+{
+  "dependencies": {
+    "express": "*"
+  },
+  "scripts": {
+    "start": "node index.js"
+  },
+  "author": {
+    "name": "Dzenis H.",
+    "url": "https://dzenis-h.com"
+  }
+}
