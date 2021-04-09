@@ -1,0 +1,54 @@
+# Specify a Docker Compose version
+version: '3.8'
+# Create your services
+services:
+  # 1st service - mongodb instance
+  mongodb:
+    # Create it, but from what base image
+    image: 'mongo'
+    # Custom volumes
+    volumes:
+      - data:/data/db
+      # Does this image have any ENV variables?
+    env_file:
+      - ./env/mongo.env
+  # 2nd service - my backend
+  backend:
+    # build from Dockerfile inside of the 'backend' folder
+    build: ./backend
+    # Does it have any ports that need to be expose?
+    ports:
+      - '80:80'
+      # What about volumes?
+    volumes:
+      # logs folder
+      - logs:/app/logs
+      # this will make that any change to backend source code will be reflected
+      - ./backend:/app
+      # lock the 'node_modules' folder
+      - /app/node_modules
+      # ENV variables for BE
+    env_file:
+      - ./env/backend.env
+      # Does this image depend on any other image/containers
+    depends_on:
+      - mongodb
+  # Build this image from FE's Dockerfile
+  frontend:
+    build: ./frontend
+    # Expose a port for FE to be able to interact in the browser
+    ports:
+      - '3000:3000'
+      # Make a volume in order for the local files to be reflected inside of the containers 'src' folder
+    volumes:
+      - ./frontend/src:/app/src
+      # The FE dev-server needs the '-it' flag in order to work properly
+    stdin_open: true
+    tty: true
+    # The FE depends on the backend
+    depends_on:
+      - backend
+# Any 'named vlumes' need to be added to a seperete 'volumes' list in order for Docker to know about them.
+volumes:
+  data:
+  logs:
